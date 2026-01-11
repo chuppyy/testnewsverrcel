@@ -50,6 +50,26 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Force cache favicon.ico - was only 0.2% cached!
+        source: "/favicon.ico",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        // Cache error pages to reduce function costs
+        source: "/_error",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
         // Cache static assets aggressively
         source:
           "/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif|woff|woff2|ttf|eot|otf)",

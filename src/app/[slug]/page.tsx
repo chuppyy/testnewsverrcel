@@ -13,6 +13,14 @@ import { AdsStateProvider } from "@/store/AdsStateContext";
 import { getArticles } from "@/services/get-article";
 import { SCRIPTS, VARIABLES } from "@/constant/variables";
 
+/**
+ * ISR Configuration for high-traffic article pages
+ * - Pages cached permanently at CDN edge
+ * - Only revalidate when manually triggered via /api/revalidate
+ * - Maximum performance, minimum cost for 10M views/month
+ */
+export const revalidate = false;
+
 // Cache wrapper to deduplicate getArticles calls within same request
 const getCachedArticles = cache(async (slug: string) => {
   return await getArticles(slug);

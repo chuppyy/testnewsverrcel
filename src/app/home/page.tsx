@@ -3,6 +3,12 @@ import { BannerCard, NewsCard } from "@/components/cards";
 import { getNewsList } from "@/services/get-article";
 import { NewsGroup, NewsItem } from "@/types/article";
 
+/**
+ * ISR for homepage - cache for 24 hours (1 day)
+ * Reduces function invocations significantly
+ */
+export const revalidate = 86400; // 24 hours = 1 day
+
 const bannerImages = [
   { src: "/hinh0.png", alt: "Banner 0", size: "large" as const },
   { src: "/hinh1.png", alt: "Banner 1" },

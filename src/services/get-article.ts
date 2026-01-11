@@ -2,7 +2,7 @@ import { VARIABLES } from "@/constant/variables";
 import { BACKUP_BASE_URL } from "@/constant/api-config";
 import { Article, NewsGroup } from "@/types/article";
 import { extractIdFromSlug } from "@/utils/data";
-import { fetchWithRetry } from "@/utils/fetch-helper";
+import { fetchWithRetry, fetchWithTimeout } from "@/utils/fetch-helper";
 import { unstable_cache } from "next/cache";
 
 type ArticleResponse = {
@@ -27,7 +27,8 @@ type BackupArticle = {
  */
 const fetchFromBackup = async (id: string): Promise<Article | null> => {
   try {
-    const response = await fetch(`${BACKUP_BASE_URL}/${id}.json`, {
+    // Use fetchWithTimeout with 5s timeout (same as main API)
+    const response = await fetchWithTimeout(`${BACKUP_BASE_URL}/${id}.json`, {
       cache: "force-cache", // Aggressively cache backup files
     });
 
