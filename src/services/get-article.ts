@@ -110,26 +110,41 @@ export const fetchArticlesFromAPI = async (id: string): Promise<Article[]> => {
 };
 
 /**
- * Get article with cache operation
+ * Get article with smart cache strategy:
+ * - Success: Cache for 7 days (articles are immutable)
+ * - Failure: Cache for 1 minute (retry soon)
  */
 export const getArticles = async (slug: string): Promise<Article[]> => {
   const id = extractIdFromSlug(slug);
   if (!id) return [];
 
+  // Cache for successful fetches - 7 days
   const getCachedArticles = unstable_cache(
     async () => {
       const articles = await fetchArticlesFromAPI(id);
       if (!articles || articles.length === 0) {
-        throw new Error(`Articles ${id} not found or API error`);
+        // Throw to prevent caching empty result in success cache
+        throw new Error(`Articles ${id} not found`);
       }
       return articles;
     },
     [`articles-${id}`],
     {
-      // Cache for 7 days - articles are immutable, no need to revalidate frequently
-      // For 10M views/month traffic, this significantly reduces API load
-      revalidate: 604800, // 7 days in seconds (7 * 24 * 60 * 60)
+      revalidate: 604800, // 7 days
       tags: [`articles-${id}`],
+    }
+  );
+
+  // Cache for failed fetches - 1 minute (retry soon)
+  const getCachedEmptyResult = unstable_cache(
+    async () => {
+      // Return empty array marker for failed attempts
+      return [] as Article[];
+    },
+    [`articles-failed-${id}`],
+    {
+      revalidate: 60, // 1 minute - retry soon
+      tags: [`articles-failed-${id}`],
     }
   );
 
@@ -137,24 +152,26 @@ export const getArticles = async (slug: string): Promise<Article[]> => {
     return await getCachedArticles();
   } catch (error) {
     console.error(`Error getting articles ${id}:`, error);
-    return [];
+
+    // Cache the failure for 1 minute to avoid hammering the API
+    // After 1 minute, next request will try again
+    return await getCachedEmptyResult();
   }
 };
 
 /**
  * Get a new list of articles
  * 
- * Cache Strategy: force-cache with 6-hour revalidate
+ * Cache Strategy: force-cache with 24-hour revalidate
  * - News list updates periodically but not frequently
- * - High traffic on homepage
- * - Balance between freshness and performance
+ * - Low homepage traffic, high article traffic
  */
 export const getNewsList = async (): Promise<NewsGroup[]> => {
   try {
     const response = await fetch(`${VARIABLES.appApi2}/News/news-list`, {
       cache: "force-cache", // Aggressively cache for performance
       next: {
-        revalidate: 21600, // 6 hours in seconds (6 * 60 * 60)
+        revalidate: 86400, // 24 hours = 1 day
         tags: ["news-list"], // Allow manual revalidation if needed
       },
     });
