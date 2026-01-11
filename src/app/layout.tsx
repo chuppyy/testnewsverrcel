@@ -42,10 +42,10 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.taboola.com" />
         <link rel="dns-prefetch" href="https://adsconex.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        
+
         {/* Preconnect to external domains for faster loading */}
         <link rel="preconnect" href="https://cdn.taboola.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://apisport.vbonews.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href={VARIABLES.appApi} crossOrigin="anonymous" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}

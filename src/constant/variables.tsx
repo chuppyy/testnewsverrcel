@@ -1,22 +1,21 @@
 import Script from "next/script";
+import { API_BASE_URL } from "./api-config";
 
 export const VARIABLES = {
-  appApi: "https://apisport.vbonews.com",
-  appApi2: "https://apisport.vbonews.com",
-  nextPublicAppApi: "https://apisport.vbonews.com",
-  nextPublicAppApi2: "https://apisport.vbonews.com",
+  appApi: API_BASE_URL,
+  appApi2: API_BASE_URL,
+  nextPublicAppApi: API_BASE_URL,
+  nextPublicAppApi2: API_BASE_URL,
   verificationCode: "OQhbutYIbK",
-  domain: "topnewsus",
+
+  // Taboola
+  tabolaPublisherId: "anhusfejiio",
 
   // Google Ads
   googleAnalytics: "G-RZ218Z0QZ1",
-  googleClientId: "ca-pub-2388584177550957",
-  googleClientSlotId: "9127559985",
-  googleAdSlot: "1932979136",
 
-  // Video Ads
-  videoScriptSrc:
-    "https://videoadstech.org/ads/topnews_livextop_com.0a05145f-8239-4054-9dc9-acd55fcdddd5.video.js",
+
+
 
   // MGID
   mgWidgetId1: "1903360",
@@ -47,14 +46,14 @@ export const SCRIPTS = {
             }(
               document.createElement('script'),
               document.getElementsByTagName('script')[0],
-              '//cdn.taboola.com/libtrc/metaconex-anhusfejiio/loader.js',
+              '//cdn.taboola.com/libtrc/metaconex-${VARIABLES.tabolaPublisherId}/loader.js',
               'tb_loader_script'
             );
 
             if(window.performance && typeof window.performance.mark === 'function') {
               window.performance.mark('tbl_ic');
             }
-          `}
+          `.replace('${VARIABLES.tabolaPublisherId}', VARIABLES.tabolaPublisherId)}
     </Script>
   ),
   metaconexScript: (

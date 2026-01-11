@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { API_HOSTNAME } from "./src/constant/api-config";
 
 const nextConfig: NextConfig = {
   // Enable React strict mode for better debugging
@@ -9,7 +10,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "apisport.vbonews.com",
+        hostname: API_HOSTNAME,
       },
     ],
     // Enable modern image formats
@@ -41,8 +42,8 @@ const nextConfig: NextConfig = {
     removeConsole:
       process.env.NODE_ENV === "production"
         ? {
-            exclude: ["error", "warn"],
-          }
+          exclude: ["error", "warn"],
+        }
         : false,
   },
 

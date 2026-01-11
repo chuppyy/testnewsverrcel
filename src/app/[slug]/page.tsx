@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SkeletonLoader } from "@/components/ui";
@@ -13,17 +13,15 @@ import { AdsStateProvider } from "@/store/AdsStateContext";
 import { getArticles } from "@/services/get-article";
 import { SCRIPTS, VARIABLES } from "@/constant/variables";
 
+// Cache wrapper to deduplicate getArticles calls within same request
+const getCachedArticles = cache(async (slug: string) => {
+  return await getArticles(slug);
+});
+
 const defaultParameters = {
-  videoScriptSrc: VARIABLES.videoScriptSrc,
-
-  googleClientId: VARIABLES.googleClientId,
-  googleClientSlotId: VARIABLES.googleClientSlotId,
-  googleAdSlot: VARIABLES.googleAdSlot,
-
   mgWidgetId1: VARIABLES.mgWidgetId1,
   mgWidgetId2: VARIABLES.mgWidgetId2,
   mgWidgetFeedId: VARIABLES.mgWidgetFeedId,
-
   adsKeeperSrc: VARIABLES.adsKeeperSrc,
   googleTagId: VARIABLES.googleAnalytics,
 
@@ -39,7 +37,7 @@ export const generateMetadata = async ({
   params,
 }: PageProps): Promise<Metadata> => {
   const { slug } = await params;
-  const articles = await getArticles(slug);
+  const articles = await getCachedArticles(slug);
 
   if (!articles || articles.length === 0) {
     return {
@@ -60,7 +58,7 @@ export const generateMetadata = async ({
 
 export default async function DetailArticlePage({ params }: PageProps) {
   const { slug } = await params;
-  const articles = await getArticles(slug);
+  const articles = await getCachedArticles(slug);
 
   if (!articles || articles.length === 0) {
     notFound();
